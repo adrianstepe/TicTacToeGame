@@ -61,7 +61,7 @@ namespace TicTacToeGame
 
             // Easy Button
             easyButton = new Button();
-            easyButton.Text = "😊 Viegls\n\n✓ Dators dara nejaušus gājienus";
+            easyButton.Text = "😊 Viegls\n\n Dators dara nejaušus gājienus";
             easyButton.Size = new Size(280, 115);
             easyButton.Location = new Point(130, 155);
             easyButton.Font = ThemeManager.GetFont(11, FontStyle.Bold);

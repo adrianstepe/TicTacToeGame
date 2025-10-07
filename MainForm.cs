@@ -394,6 +394,7 @@ namespace TicTacToeGame
             gameEnded = true;
             currentPlayer.IncrementWins();
 
+
             winningCells = FindWinningCells(currentPlayer.Symbol);
 
             // Izveidojam masīvu ar uzvarošajām pogām
