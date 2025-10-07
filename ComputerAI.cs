@@ -142,7 +142,7 @@ namespace TicTacToeGame
 
             return new Point(-1, -1);
         }
-        
+
         private List<Point> GetAvailableMoves()
         {
             List<Point> moves = new List<Point>();

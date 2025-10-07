@@ -40,8 +40,6 @@ namespace TicTacToeGame
             return false;
         }
 
-        // JAUNA METODE: Ļauj iestatīt jebkuru vērtību (arī tukšu) bez pārbaudēm
-        // Izmanto tikai AI simulācijai!
         public void SetCell(int row, int col, string value)
         {
             if (row >= 0 && row < Size && col >= 0 && col < Size)
