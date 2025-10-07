@@ -1,0 +1,8 @@
+C:\Users\User\Desktop\c# visual studio\TicTacToe\bin\Debug\TicTacToeGame.exe
+C:\Users\User\Desktop\c# visual studio\TicTacToe\bin\Debug\TicTacToeGame.pdb
+C:\Users\User\Desktop\c# visual studio\TicTacToe\obj\Debug\TicTacToeGame.csprojAssemblyReference.cache
+C:\Users\User\Desktop\c# visual studio\TicTacToe\obj\Debug\TicTacToeGame.Properties.Resources.resources
+C:\Users\User\Desktop\c# visual studio\TicTacToe\obj\Debug\TicTacToeGame.csproj.GenerateResource.cache
+C:\Users\User\Desktop\c# visual studio\TicTacToe\obj\Debug\TicTacToeGame.csproj.CoreCompileInputs.cache
+C:\Users\User\Desktop\c# visual studio\TicTacToe\obj\Debug\TicTacToeGame.exe
+C:\Users\User\Desktop\c# visual studio\TicTacToe\obj\Debug\TicTacToeGame.pdb
