@@ -20,6 +20,7 @@ namespace TicTacToeGame
         private Label modeLabel;
         private Button newGameButton;
         private Button exitButton;
+        private Button settingsButton;
         private Button themeToggleButton;
         private Panel mainPanel;
         private Panel gamePanel;
@@ -114,7 +115,6 @@ namespace TicTacToeGame
             UpdateStatus();
             UpdateScore();
 
-            // Fade-in animācija formai
             await AnimationManager.FadeIn(mainPanel, 200);
         }
 
@@ -135,7 +135,17 @@ namespace TicTacToeGame
             int startX = Math.Max(50, (this.ClientSize.Width - totalGameWidth) / 2);
             int startY = 150;
 
-            // Theme Toggle Button
+            // Settings Button (pa kreisi)
+            settingsButton = new Button();
+            settingsButton.Text = "⚙️";
+            settingsButton.Size = new Size(55, 45);
+            settingsButton.Location = new Point(15, 15);
+            settingsButton.Font = ThemeManager.GetFont(18);
+            ThemeManager.ApplyButtonStyle(settingsButton);
+            settingsButton.Click += SettingsButton_Click;
+            mainPanel.Controls.Add(settingsButton);
+
+            // Theme Toggle Button (pa labi)
             themeToggleButton = new Button();
             themeToggleButton.Text = ThemeManager.CurrentTheme == ThemeMode.Light ? "🌙" : "☀️";
             themeToggleButton.Size = new Size(55, 45);
@@ -148,8 +158,8 @@ namespace TicTacToeGame
             // Mode Label
             modeLabel = new Label();
             modeLabel.AutoSize = false;
-            modeLabel.Size = new Size(this.ClientSize.Width - 150, 30);
-            modeLabel.Location = new Point(20, 22);
+            modeLabel.Size = new Size(this.ClientSize.Width - 160, 30);
+            modeLabel.Location = new Point(80, 22);
             modeLabel.Font = ThemeManager.GetFont(10, FontStyle.Regular);
             modeLabel.TextAlign = ContentAlignment.MiddleLeft;
             modeLabel.ForeColor = ThemeManager.GetTextSecondary();
@@ -230,10 +240,26 @@ namespace TicTacToeGame
             mainPanel.Controls.Add(exitButton);
         }
 
+        private async void SettingsButton_Click(object sender, EventArgs e)
+        {
+            await AnimationManager.PulseAnimation(settingsButton, 1);
+
+            SettingsForm settingsForm = new SettingsForm();
+            if (settingsForm.ShowDialog() == DialogResult.OK)
+            {
+                // Ja tēma tika mainīta, atjaunojam visu
+                ApplyThemeToAll();
+            }
+        }
+
         private async void ThemeToggleButton_Click(object sender, EventArgs e)
         {
             ThemeManager.CurrentTheme = ThemeManager.CurrentTheme == ThemeMode.Light ? ThemeMode.Dark : ThemeMode.Light;
             themeToggleButton.Text = ThemeManager.CurrentTheme == ThemeMode.Light ? "🌙" : "☀️";
+
+            // Saglabājam tēmu iestatījumos
+            SettingsManager.CurrentSettings.Theme = ThemeManager.CurrentTheme;
+            SettingsManager.SaveSettings();
 
             await AnimationManager.PulseAnimation(themeToggleButton, 1);
             ApplyThemeToAll();
@@ -249,6 +275,7 @@ namespace TicTacToeGame
             statusLabel.ForeColor = ThemeManager.GetText();
             scoreLabel.ForeColor = ThemeManager.GetTextSecondary();
 
+            ThemeManager.ApplyButtonStyle(settingsButton);
             ThemeManager.ApplyButtonStyle(themeToggleButton);
             ThemeManager.ApplyButtonStyle(newGameButton, true);
             ThemeManager.ApplyButtonStyle(exitButton);
@@ -333,7 +360,9 @@ namespace TicTacToeGame
                 buttons[row, col].Enabled = false;
                 buttons[row, col].ForeColor = currentPlayer.Symbol == "X" ? ThemeManager.GetXColor() : ThemeManager.GetOColor();
 
-                // Pop animācija
+                // Atskaņojam klikšķa skaņu
+                SoundManager.PlayClick();
+
                 await AnimationManager.PopAnimation(buttons[row, col], currentPlayer.Symbol);
 
                 isAnimating = false;
@@ -360,7 +389,6 @@ namespace TicTacToeGame
 
         private async Task ComputerMakeMove()
         {
-            // Atspējo visas pogas
             for (int i = 0; i < currentBoardSize; i++)
             {
                 for (int j = 0; j < currentBoardSize; j++)
@@ -372,9 +400,7 @@ namespace TicTacToeGame
             statusLabel.Text = "🤖 Dators domā...";
             statusLabel.ForeColor = ThemeManager.GetTextSecondary();
 
-            // Pulse animācija statusam
             await AnimationManager.PulseAnimation(statusLabel, 1);
-
             await Task.Delay(600);
 
             Point move = computerAI.GetBestMove();
@@ -394,21 +420,26 @@ namespace TicTacToeGame
             gameEnded = true;
             currentPlayer.IncrementWins();
 
-
             winningCells = FindWinningCells(currentPlayer.Symbol);
 
-            // Izveidojam masīvu ar uzvarošajām pogām
             Button[] winningButtons = new Button[winningCells.Count];
             for (int i = 0; i < winningCells.Count; i++)
             {
                 winningButtons[i] = buttons[winningCells[i].X, winningCells[i].Y];
             }
 
-            // Glow animācija uzvarošajām šūnām
             await AnimationManager.GlowAnimation(winningButtons);
-
-            // Blink animācija
             await AnimationManager.BlinkAnimation(winningButtons, 2);
+
+            // Atskaņojam uzvara/zaudējuma skaņu
+            if (isVsComputer && currentPlayer.IsComputer)
+            {
+                SoundManager.PlayLose();
+            }
+            else
+            {
+                SoundManager.PlayWin();
+            }
 
             string winnerText = isVsComputer && currentPlayer.IsComputer ? "🤖 Dators uzvar!" : $"🎉 Spēlētājs {currentPlayer.Symbol} uzvar!";
 
@@ -501,6 +532,10 @@ namespace TicTacToeGame
         private async Task HandleDraw()
         {
             gameEnded = true;
+
+            // Atskaņojam neizšķirta skaņu
+            SoundManager.PlayDraw();
+
             statusLabel.Text = "⚖️ Neizšķirts!";
             statusLabel.ForeColor = Color.Orange;
 
@@ -564,7 +599,6 @@ namespace TicTacToeGame
 
         private async void NewGameButton_Click(object sender, EventArgs e)
         {
-            // Izveidojam custom dialogu
             CustomDialog dialog = new CustomDialog(
                 "Jauna Spēle",
                 "Vai vēlaties izvēlēties jaunu režīmu?",
@@ -577,7 +611,6 @@ namespace TicTacToeGame
 
             if (result == DialogResult.Yes)
             {
-                // Fade-out animācija
                 await AnimationManager.ZoomTransition(gamePanel, gamePanel.Size, new Size(0, 0), 300);
                 ShowInitialSelections();
             }
@@ -589,7 +622,6 @@ namespace TicTacToeGame
 
         private void ExitButton_Click(object sender, EventArgs e)
         {
-            // Izveidojam custom exit dialogu
             CustomDialog dialog = new CustomDialog(
                 "Apstiprināt Iziešanu",
                 "Vai tiešām vēlaties iziet no spēles?",
